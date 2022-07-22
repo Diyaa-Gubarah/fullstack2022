@@ -1,2 +1,2 @@
-# fullstack2022
-my exercise submissions repo. 
+# Fullstack Open Submission. 
+
