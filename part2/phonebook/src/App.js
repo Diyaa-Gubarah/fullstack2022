@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react'
+
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
-import { useState } from "react";
+import axios from 'axios'
 
 const checkIfEmpty = (...arg) => arg.map((a) => a.length === 0).includes(true);
 
@@ -13,7 +15,6 @@ const App = () => {
     number: "",
   });
 
-  
 
   const filterPersons = (e) => {
     const text = e.target.value;
@@ -59,6 +60,20 @@ const App = () => {
   const onChangeNumber = (event) => {
     setInfo({ ...info, number: event.target.value });
   };
+
+
+  useEffect(() => {
+    console.log('effect')
+  
+    const eventHandler = response => {
+      console.log('promise fulfilled')
+      setPersons(response.data)
+      setFiltered(response.data)
+    }
+  
+    const promise = axios.get('http://localhost:3001/persons')
+    promise.then(eventHandler)
+  }, [])
 
   return (
     <div>
