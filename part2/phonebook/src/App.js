@@ -37,36 +37,68 @@ const App = () => {
       id: persons.length + 1,
     };
 
-    const exist = persons.find(
-      (p) => p.name === info.name || p.number === info.number
-    );
+    const exist = persons.find((p) => p.name === info.name);
 
+    if (checkIfEmpty(info.name, info.number)) {
+      alert("Both name and number are required");
+    } else if (exist) {
+      // update person number if name already exists
+      updatePerson(exist.id, newPerson);
+    } else {
+      // add new person to the phonebook
+      addPerson(newPerson);
+    }
+  };
+
+  const addPerson = (newPerson) => {
     phoneServices
       .create(newPerson)
-      .then((returnedPerson) => {
-        setPersons(persons.concat(returnedPerson));
-        setFiltered(persons.concat(newPerson));
+      .then((response) => {
+        setPersons(persons.concat(response.data));
+        setFiltered(persons.concat(response.data));
         setInfo({ name: "", number: "" });
       })
       .catch((error) => {
-        alert(`${info.name} is already added to phonebook`);
+        alert(`Failed to add ${newPerson.name}`);
       });
+  };
 
-    if (exist) {
-      alert(`${info.name} ${info.number} is already added to phonebook`);
-    } else if (checkIfEmpty(info.name, info.number)) {
-      alert("Both name and number are required");
+  const deletePerson = (id) => {
+    const copy = [...persons];
+
+    const text = `Delete ${copy.find((p) => p.id === id).name}`;
+
+    if (window.confirm(text) === true) {
+      try {
+        phoneServices.remove(id).then(() => {
+          setPersons(copy.filter((person) => person.id !== id));
+          setFiltered(copy.filter((person) => person.id !== id));
+        });
+      } catch (error) {
+        alert(`Failed to delete ${info.name}`);
+      }
     } else {
+      alert(`Delete ${info.name} cancelled`);
+    }
+  };
+
+  const updatePerson = (id, newPerson) => {
+    const copy = [...persons];
+
+    const text = `${info.name} is already added to phonebook, replace the old name with a new one`;
+
+    if (window.confirm(text) === true) {
       phoneServices
-        .create(newPerson)
-        .then((returnedPerson) => {
-          setPersons(persons.concat(returnedPerson));
-          setFiltered(persons.concat(newPerson));
-          setInfo({ name: "", number: "" });
+        .update(id, newPerson)
+        .then((person) => {
+          setPersons([...copy.filter((p) => p.id !== id), person]);
+          setFiltered([...copy.filter((p) => p.id !== id), person]);
         })
         .catch((error) => {
-          alert(`${info.name} is already added to phonebook`);
+          alert(`Failed to update ${info.name}`);
         });
+    } else {
+      alert(`Update ${info.name} cancelled`);
     }
   };
 
@@ -79,17 +111,15 @@ const App = () => {
   };
 
   useEffect(() => {
+    console.log("useEffect");
     phoneServices
       .getAll()
       .then((initialNotes) => {
         setPersons(initialNotes);
         setFiltered(initialNotes);
-
-        console.log("initialNotes", initialNotes);
       })
       .catch((error) => {
         alert("error fetching data");
-        console.log("error", error);
       });
   }, []);
 
@@ -107,7 +137,7 @@ const App = () => {
         onChangeNumber={onChangeNumber}
       />
       <h3>Numbers</h3>
-      <Persons persons={filter} />
+      <Persons persons={filter} onClick={deletePerson} />
     </div>
   );
 };

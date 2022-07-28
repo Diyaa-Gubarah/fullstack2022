@@ -1,9 +1,14 @@
-function Persons({ persons }) {
+function Persons({ persons,onClick }) {
   return (
     <ul>
       {persons.map((person) => (
         <li key={person.id}>
-          {person.name} {person.number}
+          <div >
+            <p style={{display:"inline"}}>
+              {person.name} {person.number}
+            </p>
+            <button style={{ marginInline: 16 }} onClick={()=> onClick(person.id)}>delete</button>
+          </div>
         </li>
       ))}
     </ul>
