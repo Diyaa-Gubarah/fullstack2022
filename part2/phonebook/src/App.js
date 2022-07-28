@@ -50,12 +50,17 @@ const App = () => {
     }
   };
 
+  /*
+   * Add new person to the phonebook
+   */
   const addPerson = (newPerson) => {
+    const copy = [...persons];
+
     phoneServices
       .create(newPerson)
-      .then((response) => {
-        setPersons(persons.concat(response.data));
-        setFiltered(persons.concat(response.data));
+      .then((data) => {
+        setPersons(copy.concat(data));
+        setFiltered(copy.concat(data));
         setInfo({ name: "", number: "" });
       })
       .catch((error) => {
@@ -63,10 +68,13 @@ const App = () => {
       });
   };
 
+  /*
+   * Delete person from phonebook
+   */
   const deletePerson = (id) => {
     const copy = [...persons];
 
-    const text = `Delete ${copy.find((p) => p.id === id).name}`;
+    let text = `Delete ${copy.find((p) => p.id === id).name}`;
 
     if (window.confirm(text) === true) {
       try {
@@ -81,6 +89,10 @@ const App = () => {
       alert(`Delete ${info.name} cancelled`);
     }
   };
+
+  /*
+   * Update person number in phonebook if name already exists
+   */
 
   const updatePerson = (id, newPerson) => {
     const copy = [...persons];
@@ -110,8 +122,10 @@ const App = () => {
     setInfo({ ...info, number: event.target.value });
   };
 
+  /*
+   * Fetch all persons from phonebook
+   */
   useEffect(() => {
-    console.log("useEffect");
     phoneServices
       .getAll()
       .then((initialNotes) => {
