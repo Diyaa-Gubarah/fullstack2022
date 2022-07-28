@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from "react";
 
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
-import axios from 'axios'
+import phoneServices from "./services/phonebook";
 
 const checkIfEmpty = (...arg) => arg.map((a) => a.length === 0).includes(true);
 
@@ -14,7 +14,6 @@ const App = () => {
     name: "",
     number: "",
   });
-
 
   const filterPersons = (e) => {
     const text = e.target.value;
@@ -42,14 +41,32 @@ const App = () => {
       (p) => p.name === info.name || p.number === info.number
     );
 
+    phoneServices
+      .create(newPerson)
+      .then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        setFiltered(persons.concat(newPerson));
+        setInfo({ name: "", number: "" });
+      })
+      .catch((error) => {
+        alert(`${info.name} is already added to phonebook`);
+      });
+
     if (exist) {
       alert(`${info.name} ${info.number} is already added to phonebook`);
     } else if (checkIfEmpty(info.name, info.number)) {
       alert("Both name and number are required");
     } else {
-      setPersons(persons.concat(newPerson));
-      setFiltered(persons.concat(newPerson));
-      setInfo({ name: "", number: "", id: null });
+      phoneServices
+        .create(newPerson)
+        .then((returnedPerson) => {
+          setPersons(persons.concat(returnedPerson));
+          setFiltered(persons.concat(newPerson));
+          setInfo({ name: "", number: "" });
+        })
+        .catch((error) => {
+          alert(`${info.name} is already added to phonebook`);
+        });
     }
   };
 
@@ -61,19 +78,20 @@ const App = () => {
     setInfo({ ...info, number: event.target.value });
   };
 
-
   useEffect(() => {
-    console.log('effect')
-  
-    const eventHandler = response => {
-      console.log('promise fulfilled')
-      setPersons(response.data)
-      setFiltered(response.data)
-    }
-  
-    const promise = axios.get('http://localhost:3001/persons')
-    promise.then(eventHandler)
-  }, [])
+    phoneServices
+      .getAll()
+      .then((initialNotes) => {
+        setPersons(initialNotes);
+        setFiltered(initialNotes);
+
+        console.log("initialNotes", initialNotes);
+      })
+      .catch((error) => {
+        alert("error fetching data");
+        console.log("error", error);
+      });
+  }, []);
 
   return (
     <div>
