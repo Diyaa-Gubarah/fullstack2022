@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import Filter from "./components/Filter";
+import Notification from "./components/Notification";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import phoneServices from "./services/phonebook";
@@ -13,6 +14,11 @@ const App = () => {
   const [info, setInfo] = useState({
     name: "",
     number: "",
+  });
+
+  const [errorMessage, setErrorMessage] = useState({
+    message: null,
+    className: "",
   });
 
   const filterPersons = (e) => {
@@ -40,7 +46,7 @@ const App = () => {
     const exist = persons.find((p) => p.name === info.name);
 
     if (checkIfEmpty(info.name, info.number)) {
-      alert("Both name and number are required");
+      showNotification("Both name and number are required");
     } else if (exist) {
       // update person number if name already exists
       updatePerson(exist.id, newPerson);
@@ -48,6 +54,13 @@ const App = () => {
       // add new person to the phonebook
       addPerson(newPerson);
     }
+  };
+
+  /*
+   * show notification if errorMessage is not empty
+   */
+  const showNotification = (message) => {
+    setErrorMessage(message);
   };
 
   /*
@@ -62,9 +75,16 @@ const App = () => {
         setPersons(copy.concat(data));
         setFiltered(copy.concat(data));
         setInfo({ name: "", number: "" });
+        showNotification({
+          message: `${newPerson.name} added to the phonebook`,
+          className: "success",
+        });
       })
       .catch((error) => {
-        alert(`Failed to add ${newPerson.name}`);
+        showNotification({
+          message: `Failed to add ${newPerson.name}`,
+          className: "error",
+        });
       });
   };
 
@@ -77,23 +97,35 @@ const App = () => {
     let text = `Delete ${copy.find((p) => p.id === id).name}`;
 
     if (window.confirm(text) === true) {
-      try {
-        phoneServices.remove(id).then(() => {
+      phoneServices
+        .remove(id)
+        .then(() => {
           setPersons(copy.filter((person) => person.id !== id));
           setFiltered(copy.filter((person) => person.id !== id));
+          showNotification({
+            message: `${
+              copy.find((p) => p.id === id).name
+            } deleted from the phonebook`,
+            className: "success",
+          });
+        })
+        .catch((error) => {
+          showNotification({
+            message: `Failed to delete ${copy.find((p) => p.id === id).name}`,
+            className: "error",
+          });
         });
-      } catch (error) {
-        alert(`Failed to delete ${info.name}`);
-      }
     } else {
-      alert(`Delete ${info.name} cancelled`);
+      showNotification({
+        message: `${copy.find((p) => p.id === id).name} not found.`,
+        className: "error",
+      });
     }
   };
 
   /*
    * Update person number in phonebook if name already exists
    */
-
   const updatePerson = (id, newPerson) => {
     const copy = [...persons];
 
@@ -105,12 +137,23 @@ const App = () => {
         .then((person) => {
           setPersons([...copy.filter((p) => p.id !== id), person]);
           setFiltered([...copy.filter((p) => p.id !== id), person]);
+          setInfo({ name: "", number: "" });
+          showNotification({
+            message: `${newPerson.name} updated in the phonebook`,
+            className: "success",
+          });
         })
         .catch((error) => {
-          alert(`Failed to update ${info.name}`);
+          showNotification({
+            message: `Failed to update ${newPerson.name}`,
+            className: "error",
+          });
         });
     } else {
-      alert(`Update ${info.name} cancelled`);
+      showNotification({
+        message: `Failed to update ${newPerson.name}`,
+        className: "error",
+      });
     }
   };
 
@@ -126,6 +169,7 @@ const App = () => {
    * Fetch all persons from phonebook
    */
   useEffect(() => {
+    setErrorMessage({ message: null, className: "" });
     phoneServices
       .getAll()
       .then((initialNotes) => {
@@ -133,13 +177,18 @@ const App = () => {
         setFiltered(initialNotes);
       })
       .catch((error) => {
-        alert("error fetching data");
+        showNotification({
+          message: `Failed to fetch phonebook`,
+          className: "error",
+        });
       });
   }, []);
 
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification messageObj={errorMessage} />
+
       <Filter filterPersons={filterPersons} />
 
       <h3>Add a new</h3>

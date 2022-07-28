@@ -2,7 +2,7 @@ function Persons({ persons,onClick }) {
   return (
     <ul>
       {persons.map((person) => (
-        <li key={person.id}>
+        <li key={person.id} className='list_item'>
           <div >
             <p style={{display:"inline"}}>
               {person.name} {person.number}
