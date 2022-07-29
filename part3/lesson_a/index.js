@@ -1,8 +1,28 @@
 const express = require("express");
+var morgan = require("morgan");
+
 const app = express();
 
 app.use(express.json());
 
+// create custom middleware using morgan
+app.use(
+  morgan(function (tokens, req, res) {
+    return [
+      tokens.method(req, res),
+      tokens.url(req, res),
+      tokens.status(req, res),
+      tokens.res(req, res, "content-length"),
+      "-",
+      tokens["response-time"](req, res),
+      "ms",
+      JSON.stringify(req.body), // show the body of the request
+    ].join(" ");
+  })
+);
+
+
+// persons is an array of objects
 let persons = [
   {
     id: 1,
