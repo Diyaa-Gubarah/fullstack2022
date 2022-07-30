@@ -144,6 +144,8 @@ const App = () => {
           });
         })
         .catch((error) => {
+          console.log('update error: ', error);
+
           showNotification({
             message: `Failed to update ${newPerson.name}`,
             className: "error",
@@ -177,6 +179,7 @@ const App = () => {
         setFiltered(initialNotes);
       })
       .catch((error) => {
+        console.log('error: ', error);
         showNotification({
           message: `Failed to fetch phonebook`,
           className: "error",
