@@ -82,7 +82,7 @@ const App = () => {
       })
       .catch((error) => {
         showNotification({
-          message: `Failed to add ${newPerson.name}`,
+          message: error.response.data.error,
           className: "error",
         });
       });
@@ -111,7 +111,7 @@ const App = () => {
         })
         .catch((error) => {
           showNotification({
-            message: `Failed to delete ${copy.find((p) => p.id === id).name}`,
+            message: error.response.data.error,
             className: "error",
           });
         });
@@ -144,10 +144,10 @@ const App = () => {
           });
         })
         .catch((error) => {
-          console.log('update error: ', error);
+          console.log("update error: ", error);
 
           showNotification({
-            message: `Failed to update ${newPerson.name}`,
+            message: error.response.data.error,
             className: "error",
           });
         });
@@ -179,7 +179,7 @@ const App = () => {
         setFiltered(initialNotes);
       })
       .catch((error) => {
-        console.log('error: ', error);
+        console.log("error: ", error);
         showNotification({
           message: `Failed to fetch phonebook`,
           className: "error",
