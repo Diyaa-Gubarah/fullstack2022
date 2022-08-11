@@ -1,0 +1,11 @@
+.FormContainerMain{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.FormContainerMain .FormContainer{
+    display: flex;
+    flex-direction: column;
+}

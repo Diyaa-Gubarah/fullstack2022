@@ -1,0 +1,12 @@
+.LoginContainer {
+    display: flex;
+    flex-direction: column;
+    padding: 2em;
+    justify-content: center;
+    align-items: center;
+}
+
+.LoginContainer .LoginForm {
+    display: flex;
+    flex-direction: column;
+}
