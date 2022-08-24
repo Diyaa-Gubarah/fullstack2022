@@ -109,7 +109,7 @@ function App() {
       const newBlog = await blogService.create(data, user.token);
       setBlogs((blogs) => blogs.concat(newBlog));
       if (togglableRef.current.toggle()) {
-        togglableRef.current.toggle();
+        togglableRef.current.toggle(); // toggle come from Togglable component by forwardRef
       }
     } catch (exception) {
       setErrorMessage("Blog creation failed");

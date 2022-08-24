@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config() // we import dotenv so we can use .env variable
 
 const PORT = process.env.PORT
 
